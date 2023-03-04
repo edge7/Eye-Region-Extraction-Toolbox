@@ -58,7 +58,7 @@ while cap.isOpened():
                                                       h=image_height)
     width_eyes = (down_right_x - down_left_x)
     center_x = int(width_eyes / 2)
-    safe_increase = width_eyes * .2
+    safe_increase = width_eyes * .1
     down_right_x = int(down_right_x + safe_increase)
     down_left_x = int(down_left_x - safe_increase)
     eye_region = image[up_left_y: down_left_y, down_left_x:down_right_x, :]
@@ -71,8 +71,8 @@ while cap.isOpened():
         get_aspect_ratio(eye_region)
 
     # Display images
-    cv2.imshow('Eye regions', eye_region)
-    cv2.imshow('Full image', image)
+    cv2.imshow('Eye regions', cv2.cvtColor(eye_region, cv2.COLOR_RGB2BGR))
+    cv2.imshow('Full image', cv2.cvtColor(image, cv2.COLOR_RGB2BGR))
 
     # Exit on ESC key press
     if cv2.waitKey(5) & 0xFF == 27:
