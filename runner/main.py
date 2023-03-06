@@ -9,7 +9,7 @@ face_mesh = mp.solutions.face_mesh.FaceMesh(
     min_detection_confidence=0.5)
 
 # Open camera capture
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(4)
 
 
 # Function to invert normalization of landmarks
@@ -51,27 +51,30 @@ while cap.isOpened():
     to_check = results.multi_face_landmarks[0].landmark
     image_width = image.shape[1]
     image_height = image.shape[0]
-    up_left_x, up_left_y = invert_normalization(x=to_check[68].x, y=to_check[68].y, w=image_width, h=image_height)
-    down_left_x, down_left_y = invert_normalization(x=to_check[68].x, y=to_check[123].y, w=image_width, h=image_height)
-    up_right_x, up_right_y = invert_normalization(x=to_check[301].x, y=to_check[68].y, w=image_width, h=image_height)
+    up_left_x, up_left_y = invert_normalization(x=to_check[71].x, y=to_check[71].y, w=image_width, h=image_height)
+    down_left_x, down_left_y = invert_normalization(x=to_check[71].x, y=to_check[123].y, w=image_width, h=image_height)
+    up_right_x, up_right_y = invert_normalization(x=to_check[301].x, y=to_check[71].y, w=image_width, h=image_height)
     down_right_x, down_right_y = invert_normalization(x=to_check[301].x, y=to_check[123].y, w=image_width,
                                                       h=image_height)
     width_eyes = (down_right_x - down_left_x)
     center_x = int(width_eyes / 2)
-    safe_increase = width_eyes * .1
+    safe_increase = int(width_eyes * .2)
     down_right_x = int(down_right_x + safe_increase)
     down_left_x = int(down_left_x - safe_increase)
     eye_region = image[up_left_y: down_left_y, down_left_x:down_right_x, :]
 
     eye_region_aspect_ratio = get_aspect_ratio(eye_region)
-    RATIO_THRES = 0.6
+    RATIO_THRES = 0.5
     if eye_region_aspect_ratio <= RATIO_THRES:
         up_left_y, down_left_y = fix_aspect_ratio(eye_region, up_left_y, down_left_y,  RATIO_THRES)
         eye_region = image[up_left_y: down_left_y, down_left_x:down_right_x, :]
         get_aspect_ratio(eye_region)
+        print(eye_region.shape)
 
+    res = cv2.resize(cv2.cvtColor(eye_region, cv2.COLOR_RGB2BGR), (64, 64))
     # Display images
-    cv2.imshow('Eye regions', cv2.cvtColor(eye_region, cv2.COLOR_RGB2BGR))
+    cv2.imshow('Eye regions', cv2.resize(res, (eye_region.shape[1], eye_region.shape[0])))
+    cv2.imshow('Eye regions original', cv2.cvtColor(eye_region, cv2.COLOR_RGB2BGR))
     cv2.imshow('Full image', cv2.cvtColor(image, cv2.COLOR_RGB2BGR))
 
     # Exit on ESC key press
